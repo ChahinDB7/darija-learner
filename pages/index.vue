@@ -197,7 +197,16 @@ export default {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 15px;
             width: 100%;
+
+            .title {
+              font-size: 18px;
+
+              @media (max-width: $d-s-ipad) {
+                font-size: 16px;
+              }
+            }
 
             .actions {
               display: flex;
