@@ -3,7 +3,7 @@
     <Head>
       <Title>Learning Darija</Title>
     </Head>
-    <div class="body">
+    <div class="body" style="position: relative">
       <Loader v-if="loading" message="Getting data..." :dark-mode="true" />
 
       <ClientOnly>
@@ -631,7 +631,7 @@ export default {
   padding: 30px;
 
   .body {
-    position: relative !important;
+    position: relative;
     width: 100%;
 
     h2.title {
