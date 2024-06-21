@@ -26,6 +26,12 @@ export default {
     public: {},
   },
 
+  router: {
+    options: {
+      hashMode: process.env.NODE_ENV === "production",
+    },
+  },
+
   css: ["~/assets/scss/main.scss", "bootstrap/dist/css/bootstrap.min.css"],
 
   vite: {
