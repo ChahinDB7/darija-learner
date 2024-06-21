@@ -631,8 +631,9 @@ export default {
   padding: 30px;
 
   .body {
-    position: relative;
+    position: relative !important;
     width: 100%;
+
     h2.title {
       text-align: center;
     }
