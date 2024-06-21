@@ -23,7 +23,9 @@ export default {
   },
 
   runtimeConfig: {
-    public: {},
+    public: {
+      baseUrl: process.env.NUXT_PUBLIC_BASE_URL ?? "/",
+    },
   },
 
   router: {

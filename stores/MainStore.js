@@ -12,12 +12,14 @@ export const useMainStore = defineStore("mainStore", () => {
   const favorites = ref([]);
   const allData = ref([]);
   const loading = ref(true);
+  const runtimeConfig = useRuntimeConfig();
 
   async function getContent() {
-    console.log("getContent");
-    const { data } = await instance.get("/arabic.md");
+    const baseUrl = runtimeConfig.public.baseUrl;
+
+    const { data } = await instance.get(`${baseUrl}/arabic.md`);
     const { value, all } = darijaLib.getArabic(data);
-    console.log({ value });
+
     arabic.value = value;
     allData.value = all;
     favorites.value = JSON.parse(localStorage.getItem("favorites")) || [];
