@@ -31,25 +31,29 @@
                 <AccordionPanel
                   v-model:value="item.open"
                   class="card-item"
-                  :title="item.title"
                   :expanded="isFavorited(item)"
                 >
-                  <template #header>
-                    <span>({{ item.data.length }})</span>
-                    <span>
-                      <Icon
-                        v-show="isFavorited(item)"
-                        name="heart-filled"
-                        class="favorite-icon"
-                        @click.stop="toggleFavorite(item)"
-                      />
-                      <Icon
-                        v-show="!isFavorited(item)"
-                        class="favorite-icon"
-                        name="empty-heart"
-                        @click.stop="toggleFavorite(item)"
-                      />
-                    </span>
+                  <template #header="{ toggle, open }">
+                    <div class="title-box" @click="toggle()">
+                      <div class="title">{{ item.title }}</div>
+                      <div class="actions">
+                        <span>({{ item.data.length }})</span>
+                        <span>
+                          <Icon
+                            v-show="isFavorited(item)"
+                            name="heart-filled"
+                            class="favorite-icon"
+                            @click.stop="toggleFavorite(item)"
+                          />
+                          <Icon
+                            v-show="!isFavorited(item)"
+                            class="favorite-icon"
+                            name="empty-heart"
+                            @click.stop="toggleFavorite(item)"
+                          />
+                        </span>
+                      </div>
+                    </div>
                   </template>
                   <nuxt-link
                     class="no-underline"
@@ -155,8 +159,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "~/assets/scss/devices";
-
 .content {
   width: 100%;
   background-color: #131722;
@@ -190,6 +192,20 @@ export default {
           gap: 10px;
           height: fit-content;
           flex: auto;
+
+          .title-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+
+            .actions {
+              display: flex;
+              gap: 10px;
+              align-items: center;
+            }
+          }
+
           .words {
             max-height: 400px;
             padding-right: 30px;

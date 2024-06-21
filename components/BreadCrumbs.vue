@@ -45,8 +45,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "~/assets/scss/devices";
-
 .breadcrumbs-wrapper {
   @media (max-width: $d-l-ipad) {
     border-bottom: 0;

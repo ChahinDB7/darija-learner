@@ -44,8 +44,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "~/assets/scss/devices";
-
 .collapser-title {
   font-size: 20px;
   text-align: left;

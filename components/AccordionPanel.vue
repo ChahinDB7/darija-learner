@@ -4,9 +4,9 @@
       <input :id="id" v-model="open" type="checkbox" />
       <div class="header no-select">
         <label @click.self="open = !open"
-          ><span v-if="title" class="title" @click.self="open = !open"
+          ><span class="title" @click.self="open = !open"
             >{{ title }}
-            <slot name="header" />
+            <slot name="header" :toggle="debouncedToggle" :open="open" />
           </span>
           <Icon
             v-if="!hideChevron"
@@ -58,6 +58,7 @@ export default {
   data() {
     return {
       id: this.generateRandomId(),
+      debouncedToggle: _debounce(this.toggle, 50),
       open: this.expanded,
     };
   },
@@ -75,6 +76,10 @@ export default {
     },
   },
   methods: {
+    toggle() {
+      this.open = !this.open;
+    },
+
     generateRandomId() {
       const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
       let id = "";
@@ -107,6 +112,7 @@ label {
   cursor: pointer;
   position: relative;
   display: flex;
+  gap: 10px;
   font-size: 18px;
   padding: 6px 20px;
   align-items: center;
@@ -115,11 +121,17 @@ label {
 
 .title {
   display: flex;
-  gap: 30px;
+  gap: 10px;
   align-items: center;
   color: white;
   font-size: 20px;
+  width: 100%;
+
+  @media (max-width: $d-s-ipad) {
+    font-size: 18px;
+  }
 }
+
 div.p {
   max-height: 0px;
   overflow: hidden;

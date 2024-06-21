@@ -621,8 +621,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "~/assets/scss/devices";
-
 .content {
   width: 100%;
   background-color: #131722;

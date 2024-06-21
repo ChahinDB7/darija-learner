@@ -29,6 +29,14 @@ export default {
   css: ["~/assets/scss/main.scss", "bootstrap/dist/css/bootstrap.min.css"],
 
   vite: {
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: '@import "@/assets/scss/devices.scss";',
+        },
+      },
+    },
+
     resolve: {
       alias: {
         "@": path.join(__dirname, ""),

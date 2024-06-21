@@ -20,8 +20,6 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "~/assets/scss/devices";
-
 .body-content {
   margin: 30px;
 
