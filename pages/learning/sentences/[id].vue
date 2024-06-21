@@ -4,65 +4,50 @@
       <Title>Learning Darija</Title>
     </Head>
     <div class="body">
-      <Loader v-if="loading" message="Getting data..." :dark-mode="true" />
+      <Loader
+        v-if="loading || !specificLession"
+        message="Getting data..."
+        :dark-mode="true"
+      />
 
-      <ClientOnly>
-        <template v-if="specificLession">
-          <Head>
-            <Title>Learning {{ specificLession?.title }}</Title>
-          </Head>
-          <div class="navigate-home">
-            <BreadCrumbs
-              v-once
-              :border="false"
-              :links="[
-                {
-                  href: `/learning/${currentRouteId}`,
-                  label: specificLession.title,
-                },
-                {
-                  href: `/learning/sentences/${specificLession.lession}`,
-                  label: 'Sentences',
-                },
-              ]"
-            />
-            <div class="actions no-select">
-              <div class="learn">
-                <span class="label">Learning</span>
-                <RadioButtonsRectangle
-                  v-model:value="learning"
-                  v-memo="[learning]"
-                  class="radio-buttons"
-                  :items="['Arabic', 'English']"
-                />
-              </div>
-            </div>
-            <div v-if="!askWhatToDo" class="actions-content mobile">
-              <div class="what-to-do clickable" @click="askWhatToDo = true">
-                Different learning method
-              </div>
-              <div class="what-to-do clickable" @click="learnStars(true)">
-                Learns stars with hint
-              </div>
-
-              <div class="what-to-do clickable" @click="learnStars(false)">
-                Learns stars
-              </div>
-
-              <div class="what-to-do clickable" @click="shuffle">Reshuffle</div>
-
-              <div class="what-to-do clickable" @click="unstarAll">
-                Unstar all
-              </div>
+      <template v-else>
+        <Head>
+          <Title>Learning {{ specificLession?.title }}</Title>
+        </Head>
+        <div class="navigate-home">
+          <BreadCrumbs
+            v-once
+            :border="false"
+            :links="[
+              {
+                href: `/learning/${currentRouteId}`,
+                label: specificLession.title,
+              },
+              {
+                href: `/learning/sentences/${specificLession.lession}`,
+                label: 'Sentences',
+              },
+            ]"
+          />
+          <div class="actions no-select">
+            <div class="learn">
+              <span class="label">Learning</span>
+              <RadioButtonsRectangle
+                v-model:value="learning"
+                v-memo="[learning]"
+                class="radio-buttons"
+                :items="['Arabic', 'English']"
+              />
             </div>
           </div>
-          <div v-if="!askWhatToDo" class="actions-content desktop">
+          <div v-if="!askWhatToDo" class="actions-content mobile">
             <div class="what-to-do clickable" @click="askWhatToDo = true">
               Different learning method
             </div>
             <div class="what-to-do clickable" @click="learnStars(true)">
               Learns stars with hint
             </div>
+
             <div class="what-to-do clickable" @click="learnStars(false)">
               Learns stars
             </div>
@@ -73,166 +58,179 @@
               Unstar all
             </div>
           </div>
-          <h2 v-once class="title">
-            Learn <span class="gold">{{ specificLession.title }}</span>
-          </h2>
-          <div v-if="!askWhatToDo" class="learning">
-            <div v-if="currentWord" class="card-item">
-              <template v-if="settings.showHint">
-                <span class="">{{ currentWord.english }}</span
-                >:
-                <span class="gold">{{ currentWord.arabic }}</span>
-              </template>
-              <h2 v-else>
-                What is the {{ learning }} word for
-                <span class="gold">{{
-                  learning === "Arabic"
-                    ? currentWord.english
-                    : currentWord.arabic
-                }}</span>
-                ?
-              </h2>
+        </div>
+        <div v-if="!askWhatToDo" class="actions-content desktop">
+          <div class="what-to-do clickable" @click="askWhatToDo = true">
+            Different learning method
+          </div>
+          <div class="what-to-do clickable" @click="learnStars(true)">
+            Learns stars with hint
+          </div>
+          <div class="what-to-do clickable" @click="learnStars(false)">
+            Learns stars
+          </div>
+
+          <div class="what-to-do clickable" @click="shuffle">Reshuffle</div>
+
+          <div class="what-to-do clickable" @click="unstarAll">Unstar all</div>
+        </div>
+        <h2 v-once class="title">
+          Learn <span class="gold">{{ specificLession.title }}</span>
+        </h2>
+        <div v-if="!askWhatToDo" class="learning">
+          <div v-if="currentWord" class="card-item">
+            <template v-if="settings.showHint">
+              <span class="">{{ currentWord.english }}</span
+              >:
+              <span class="gold">{{ currentWord.arabic }}</span>
+            </template>
+            <h2 v-else>
+              What is the {{ learning }} word for
+              <span class="gold">{{
+                learning === "Arabic" ? currentWord.english : currentWord.arabic
+              }}</span>
+              ?
+            </h2>
+          </div>
+          <div class="input-container">
+            <div class="left">
+              <Icon
+                :class="{ invincible: currentIndex === 0 }"
+                :clickable="currentIndex !== 0"
+                name="chevron-left"
+                @click="goPrevious"
+              />
             </div>
-            <div class="input-container">
-              <div class="left">
-                <Icon
-                  :class="{ invincible: currentIndex === 0 }"
-                  :clickable="currentIndex !== 0"
-                  name="chevron-left"
-                  @click="goPrevious"
-                />
-              </div>
-              <div class="input">
-                <input
-                  v-model="inputText"
-                  type="text"
-                  :class="{ correct: correct, 'in-correct': inCorrect }"
-                  :placeholder="placeholderText"
-                  @input="textChange($event)"
-                />
-                <div class="icons clickable">
-                  <template v-if="inputText !== ''">
-                    <Icon
-                      name="cross"
-                      tooltip="Clear text"
-                      width="25px"
-                      height="25px"
-                      @click="inputText = ''"
-                    />
-                    <Icon
-                      name="checkmark-rectangle"
-                      tooltip="This word is correct"
-                      width="25px"
-                      height="25px"
-                      @click="goNext(true)"
-                    />
-                  </template>
-                  <template v-if="!settings.showHint">
-                    <Icon
-                      v-if="showHintIcons"
-                      tooltip="Show hint"
-                      name="progress-help"
-                      width="25px"
-                      height="25px"
-                      @click="settings.hintLetters++"
-                    />
-                    <Icon
-                      name="help"
-                      :tooltip="settings.showWord ? 'Hide word' : 'Show word'"
-                      width="25px"
-                      height="25px"
-                      @click="settings.showWord = !settings.showWord"
-                    />
-                  </template>
+            <div class="input">
+              <input
+                v-model="inputText"
+                type="text"
+                :class="{ correct: correct, 'in-correct': inCorrect }"
+                :placeholder="placeholderText"
+                @input="textChange($event)"
+              />
+              <div class="icons clickable">
+                <template v-if="inputText !== ''">
                   <Icon
-                    v-show="currentWord.star"
-                    name="star-filled"
-                    width="25px"
-                    tooltip="Unstar this question"
-                    height="25px"
-                    @click="setStar(false)"
-                  />
-                  <Icon
-                    v-show="!currentWord.star"
-                    name="star"
-                    tooltip="Star this question"
+                    name="cross"
+                    tooltip="Clear text"
                     width="25px"
                     height="25px"
-                    @click="setStar(true)"
+                    @click="inputText = ''"
                   />
                   <Icon
-                    name="checkmark"
+                    name="checkmark-rectangle"
+                    tooltip="This word is correct"
                     width="25px"
-                    tooltip="Correct, next question"
                     height="25px"
-                    @click="correctNextQuestion"
+                    @click="goNext(true)"
                   />
-                </div>
-              </div>
-              <div class="right">
+                </template>
+                <template v-if="!settings.showHint">
+                  <Icon
+                    v-if="showHintIcons"
+                    tooltip="Show hint"
+                    name="progress-help"
+                    width="25px"
+                    height="25px"
+                    @click="settings.hintLetters++"
+                  />
+                  <Icon
+                    name="help"
+                    :tooltip="settings.showWord ? 'Hide word' : 'Show word'"
+                    width="25px"
+                    height="25px"
+                    @click="settings.showWord = !settings.showWord"
+                  />
+                </template>
                 <Icon
-                  class="clickable"
-                  name="chevron-right"
-                  @click="goNext(false)"
+                  v-show="currentWord.star"
+                  name="star-filled"
+                  width="25px"
+                  tooltip="Unstar this question"
+                  height="25px"
+                  @click="setStar(false)"
                 />
-              </div>
-            </div>
-            <div class="label-status">
-              <div class="left">
                 <Icon
-                  :class="{ invincible: currentIndex === 0 }"
-                  :clickable="currentIndex !== 0"
-                  name="chevron-left"
-                  @click="goPrevious"
+                  v-show="!currentWord.star"
+                  name="star"
+                  tooltip="Star this question"
+                  width="25px"
+                  height="25px"
+                  @click="setStar(true)"
                 />
-              </div>
-              <div class="text">
-                {{ currentIndex + 1 }} of the {{ allWords.length }} sentences
-              </div>
-              <div class="right">
                 <Icon
-                  class="clickable"
-                  name="chevron-right"
-                  @click="goNext(false)"
+                  name="checkmark"
+                  width="25px"
+                  tooltip="Correct, next question"
+                  height="25px"
+                  @click="correctNextQuestion"
                 />
               </div>
             </div>
-            <div class="navigation-container no-select">
-              <ul class="pagination">
-                <li
-                  v-for="(question, index) in allWords"
-                  :key="question.id"
-                  class="page-item"
+            <div class="right">
+              <Icon
+                class="clickable"
+                name="chevron-right"
+                @click="goNext(false)"
+              />
+            </div>
+          </div>
+          <div class="label-status">
+            <div class="left">
+              <Icon
+                :class="{ invincible: currentIndex === 0 }"
+                :clickable="currentIndex !== 0"
+                name="chevron-left"
+                @click="goPrevious"
+              />
+            </div>
+            <div class="text">
+              {{ currentIndex + 1 }} of the {{ allWords.length }} sentences
+            </div>
+            <div class="right">
+              <Icon
+                class="clickable"
+                name="chevron-right"
+                @click="goNext(false)"
+              />
+            </div>
+          </div>
+          <div class="navigation-container no-select">
+            <ul class="pagination">
+              <li
+                v-for="(question, index) in allWords"
+                :key="question.id"
+                class="page-item"
+              >
+                <div
+                  class="page-link clickable"
+                  :class="{
+                    clickable: question.visible,
+                    answered: question.correct,
+                    star: question.star,
+                    current: currentIndex === index,
+                  }"
+                  @click="currentIndex = index"
                 >
-                  <div
-                    class="page-link clickable"
-                    :class="{
-                      clickable: question.visible,
-                      answered: question.correct,
-                      star: question.star,
-                      current: currentIndex === index,
-                    }"
-                    @click="currentIndex = index"
-                  >
-                    <span>{{ index + 1 }}</span>
-                  </div>
-                </li>
-              </ul>
-            </div>
+                  <span>{{ index + 1 }}</span>
+                </div>
+              </li>
+            </ul>
           </div>
-          <div v-else class="ask-what-to-do">
-            <h4>What do you want to do?</h4>
-            <div class="buttons">
-              <button class="button" @click="whatToDoNext('learn-with-hint')">
-                Learn with hint
-              </button>
-              <button class="button" @click="whatToDoNext('learn-no-hint')">
-                Learn without hint
-              </button>
-            </div>
+        </div>
+        <div v-else class="ask-what-to-do">
+          <h4>What do you want to do?</h4>
+          <div class="buttons">
+            <button class="button" @click="whatToDoNext('learn-with-hint')">
+              Learn with hint
+            </button>
+            <button class="button" @click="whatToDoNext('learn-no-hint')">
+              Learn without hint
+            </button>
           </div>
-        </template>
-      </ClientOnly>
+        </div>
+      </template>
     </div>
   </div>
 </template>

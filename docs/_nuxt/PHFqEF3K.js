@@ -1,1 +1,0 @@
-import{_ as t,o,c as s,a,r as n}from"./DY6lgNKQ.js";const r={name:"Default",data(){return{}},mounted(){},methods:{}},c={class:"body-content"};function d(e,l,u,_,f,p){return o(),s("div",null,[a("div",c,[n(e.$slots,"default",{test:!0})])])}const m=t(r,[["render",d]]);export{m as default};
