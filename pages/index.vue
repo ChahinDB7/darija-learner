@@ -14,7 +14,7 @@
       <ClientOnly>
         <template v-if="!loading && searchResults.length <= 0">
           <masonry-wall
-            :items="mainStoreComputed.arabic"
+            :items="arabic"
             :min-columns="1"
             :max-columns="2"
             :scroll-container="true"
@@ -94,35 +94,29 @@
 </template>
 
 <script>
-import darijaLib from "@lib/darija";
+import { storeToRefs } from "pinia";
 
 export default {
   name: "Learning",
 
   setup() {
-    const mainStore = MainStore();
+    const mainStore = useMainStore();
 
-    return { mainStore };
+    const { loading, allData, arabic } = storeToRefs(mainStore);
+
+    const toggleFavorite = (lession) => {
+      mainStore.setFavorite(lession);
+    };
+
+    return { loading, allData, arabic, toggleFavorite };
   },
 
   data() {
     return {
-      darijaLib,
       debouncedSearch: _debounce(this.doSearch, 1000),
       search: "",
       searchResults: [],
     };
-  },
-
-  computed: {
-    mainStoreComputed() {
-      if (_isNil(this.mainStore.$state)) return {};
-      return this.mainStore.$state;
-    },
-    loading() {
-      if (_isNil(this.mainStoreComputed.loading)) return true;
-      return this.mainStoreComputed.loading;
-    },
   },
 
   watch: {
@@ -136,15 +130,13 @@ export default {
     isFavorited(data) {
       return data.favorite;
     },
-    toggleFavorite(lession) {
-      this.mainStore.setFavorite(lession);
-    },
+
     doSearch() {
       if (this.search === "") {
         this.searchResults = [];
         return;
       }
-      const allSearchAble = this.mainStoreComputed.allData;
+      const allSearchAble = this.allData;
       const regexPattern = new RegExp(_escapeRegExp(this.search), "i");
       this.searchResults = _filter(
         allSearchAble,

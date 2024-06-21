@@ -3,7 +3,7 @@
     <Head>
       <Title>Learning Darija</Title>
     </Head>
-    <div class="body" style="position: relative">
+    <div class="body">
       <Loader v-if="loading" message="Getting data..." :dark-mode="true" />
 
       <ClientOnly>
@@ -148,12 +148,14 @@
                     v-show="currentWord.star"
                     name="star-filled"
                     width="25px"
+                    tooltip="Unstar this question"
                     height="25px"
                     @click="setStar(false)"
                   />
                   <Icon
                     v-show="!currentWord.star"
                     name="star"
+                    tooltip="Star this question"
                     width="25px"
                     height="25px"
                     @click="setStar(true)"
@@ -236,21 +238,37 @@
 </template>
 
 <script>
-import darijaLib from "@lib/darija";
 import toast from "@lib/toast";
+import { storeToRefs } from "pinia";
 
 export default {
   name: "LearningSentences",
 
   setup() {
-    const mainStore = MainStore();
+    const mainStore = useMainStore();
+    const route = useRoute();
 
-    return { mainStore };
+    const { loading: loadingAPI, allData, arabic } = storeToRefs(mainStore);
+    const currentRouteId = route?.params?.id;
+
+    const loading = computed(() => {
+      if (_isNil(loadingAPI.value)) return true;
+      if (_isNil(allData.value)) return true;
+      if (_isNil(arabic.value)) return true;
+
+      return loadingAPI.value;
+    });
+
+    const specificLession = computed(() => {
+      if (_isEmpty(arabic.value)) return null;
+      return arabic.value?.find((item) => item.lession === currentRouteId);
+    });
+
+    return { currentRouteId, loading, specificLession };
   },
 
   data() {
     return {
-      darijaLib,
       debouncedGoNext: _debounce(this.goNext, 1000),
       inputText: "",
       learning: "Arabic",
@@ -270,21 +288,6 @@ export default {
   },
 
   computed: {
-    mainStoreComputed() {
-      if (_isNil(this.mainStore.$state)) return {};
-      return this.mainStore.$state;
-    },
-    loading() {
-      if (_isNil(this.mainStoreComputed.loading)) return true;
-      if (_isNil(this.specificLession)) return true;
-      return this.mainStoreComputed.loading;
-    },
-    specificLession() {
-      if (_isEmpty(this.mainStoreComputed.arabic)) return null;
-      return this.mainStoreComputed.arabic.find(
-        (item) => item.lession === this.currentRouteId,
-      );
-    },
     learningWord() {
       if (this.learning === "Arabic") return this.currentWord.arabic;
       return this.currentWord.english;
@@ -313,9 +316,6 @@ export default {
     currentWord() {
       if (_isEmpty(this.specificLession)) return null;
       return this.allWords[this.currentIndex];
-    },
-    currentRouteId() {
-      return this.$route.params.id;
     },
   },
   watch: {

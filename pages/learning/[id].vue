@@ -4,6 +4,7 @@
       <Head>
         <Title>Learning Darija</Title>
       </Head>
+
       <Loader v-if="loading" message="Getting data..." :dark-mode="true" />
 
       <ClientOnly>
@@ -16,31 +17,31 @@
               :links="[
                 {
                   href: `/learning/${currentRouteId}`,
-                  label: specificLession.title,
+                  label: specificLession?.title,
                 },
               ]"
             />
           </div>
           <h2 v-once class="title">
-            Learn <span class="gold">{{ specificLession.title }}</span>
+            Learn <span class="gold">{{ specificLession?.title }}</span>
           </h2>
           <div class="learn">
             <nuxt-link
-              v-if="specificLession.hasSentences"
+              v-if="specificLession?.hasSentences"
               class="learn-words"
-              :to="`/learning/sentences/${specificLession.lession}`"
+              :to="`/learning/sentences/${specificLession?.lession}`"
               >Learn sentences</nuxt-link
             >
             <nuxt-link
               v-else
               class="learn-words"
-              :to="`/learning/words/${specificLession.lession}`"
+              :to="`/learning/words/${specificLession?.lession}`"
               >Learn words</nuxt-link
             >
           </div>
           <div class="board is-thumb">
             <div
-              v-for="(word, index) in specificLession.data"
+              v-for="(word, index) in specificLession?.data"
               :key="index"
               class="card-item"
             >
@@ -58,45 +59,34 @@
 </template>
 
 <script>
-import darijaLib from "@lib/darija";
+import { storeToRefs } from "pinia";
 
 export default {
   name: "Learning",
 
-  setup() {
-    const mainStore = MainStore();
+  async setup() {
+    const mainStore = useMainStore();
+    const route = useRoute();
 
-    return { mainStore };
+    const { loading: loadingAPI, allData, arabic } = storeToRefs(mainStore);
+    const currentRouteId = route?.params?.id;
+
+    const specificLession = computed(() => {
+      if (_isEmpty(arabic.value)) return null;
+      return arabic.value?.find((item) => item.lession === currentRouteId);
+    });
+
+    const loading = computed(() => {
+      if (_isNil(loadingAPI.value)) return true;
+      if (_isNil(allData.value)) return true;
+      if (_isNil(specificLession.value)) return true;
+      if (_isNil(arabic.value)) return true;
+
+      return loadingAPI.value;
+    });
+
+    return { loading, allData, currentRouteId, specificLession };
   },
-
-  data() {
-    return {
-      darijaLib,
-    };
-  },
-
-  computed: {
-    mainStoreComputed() {
-      if (_isNil(this.mainStore.$state)) return {};
-      return this.mainStore.$state;
-    },
-    loading() {
-      if (_isNil(this.mainStoreComputed.loading)) return true;
-      if (_isNil(this.specificLession)) return true;
-      return this.mainStoreComputed.loading;
-    },
-    specificLession() {
-      if (_isEmpty(this.mainStoreComputed.arabic)) return null;
-      return this.mainStoreComputed.arabic.find(
-        (item) => item.lession === this.currentRouteId,
-      );
-    },
-    currentRouteId() {
-      return this.$route.params.id;
-    },
-  },
-
-  mounted() {},
 };
 </script>
 
