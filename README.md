@@ -1,3 +1,2 @@
-# Here you can learn darija. 
-
+## Learn darija (Moroccan Arabic) 
 https://chahindb7.github.io/darija-learner/
